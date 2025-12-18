@@ -1,8 +1,11 @@
 import axios from 'axios'
 import { useUserStore } from '@/stores/user'
 
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL
+
 const api = axios.create({
-  baseURL: 'http://localhost:8080', // 백엔드 주소
+  baseURL: BASE_URL, // 백엔드 주소
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -38,7 +41,7 @@ api.interceptors.response.use(
 
       try {
         // 새 Access Token 발급 요청
-        const refreshResponse = await axios.post(
+        const refreshResponse = await api.post(
           `/auth/refresh`,{},{
            withCredentials: true,
           })
