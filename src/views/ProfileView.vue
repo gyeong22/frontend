@@ -106,9 +106,9 @@
               <div class="flex justify-between items-start">
                 <div>
                   <h3 class="text-base font-semibold text-[#2E2A24]">
-                    {{ item.book.title }}
+                    {{ item.title }}
                   </h3>
-                  <p class="text-xs text-gray-500">{{ item.book.author }}</p>
+                  <p class="text-xs text-gray-500">{{ item.author }}</p>
                 </div>
                 <span
                   class="rounded-full bg-[#F0EEE9] px-3 py-0.5 text-[11px] text-[#4B463B] border border-[#EAE9E3]"
@@ -193,28 +193,28 @@ watch(
 const reviews = [
   {
     id: "r1",
+    authorNickname: "김독서",
+    userId: "bookworm",
     title: "5권: 관계가 어긋나는 순간",
     body: "스포 없이 감정만 남겼습니다. 대화 톤이 급격히 변하면서 캐릭터가 보이는 단면이 인상적.",
-    authorNickname: "김독서",
-    authorId: "bookworm",
     createdAtLabel: "2시간 전",
     contentTitle: "이방인",
     categoryLabel: "도서",
-    myProgress: 5,
-    spoilerProtected: true,
+    spoiler: true,
+    spoilerUntil: 5,
     tags: ["감정", "기록"],
   },
   {
     id: "r2",
+    authorNickname: "닉네임",
+    userId: "bookworm",
     title: "리뷰 제목",
     body: "리뷰 내용입니다. 강낭콩밥을 먹을래요. 계란후라이가 최고입니다.",
-    authorNickname: "닉네임",
-    authorId: "bookworm",
     createdAtLabel: "2시간 전",
     contentTitle: "이방인",
     categoryLabel: "도서",
-    myProgress: 5,
-    spoilerProtected: true,
+    spoiler: true,
+    spoilerUntil: 5,
     tags: ["감정", "기록"],
   },
 ];

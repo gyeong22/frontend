@@ -9,41 +9,52 @@
       </div>
 
       <!-- Body -->
-      <div class="min-w-0 flex-1 space-y-2">
+      <div class="min-w-0 flex-1 space-y-3">
+        <!-- 메타 블록 -->
         <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <!-- 메타 1: 작성자 -->
-            <p class="truncate text-xs font-semibold text-gray-800">
-              {{ authorLabel }}
-            </p>
-            <!-- 메타 2: 작품/진행도 -->
+          <div class="min-w-0 space-y-1">
+            <div class="flex items-center gap-1 text-xs text-gray-800">
+              <span class="font-semibold truncate">{{
+                review.authorNickname
+              }}</span>
+              <span class="text-gray-400 truncate">{{
+                review.userId ? `@${review.userId}` : ""
+              }}</span>
+            </div>
             <p class="truncate text-xs text-gray-500">
-              <span v-if="contentLabel">{{ contentLabel }}</span>
-              <span v-if="progressLabel" class="ml-1 text-gray-400">({{ progressLabel }})</span>
-            </p>
-            <!-- 제목 -->
-            <p class="truncate text-base font-semibold text-gray-900">
-              {{ review.title || "기록" }}
+              <span class="font-medium text-gray-800">{{
+                review.contentTitle
+              }}</span>
+              <span v-if="review.categoryLabel" class="ml-1 text-gray-400"
+                >· {{ review.categoryLabel }}</span
+              >
+              <span v-if="review.contentAuthor" class="ml-1 text-gray-400"
+                >· {{ review.contentAuthor }}</span
+              >
+              <span v-if="spoilerRangeLabel" class="ml-1 text-amber-700"
+                >({{ spoilerRangeLabel }})</span
+              >
             </p>
           </div>
-          <span class="shrink-0 text-xs text-gray-400">{{
-            review.createdAtLabel || review.time
-          }}</span>
+          <span class="shrink-0 text-xs text-gray-400">
+            {{ review.createdAtLabel || review.time }}
+          </span>
         </div>
 
-        <!-- Content -->
+        <!-- 제목 -->
+        <p class="truncate text-base font-semibold text-gray-900">
+          {{ review.title || "기록" }}
+        </p>
+
+        <!-- 본문 -->
         <div
           v-if="review.body"
           class="relative rounded-xl bg-gray-50 px-4 py-3 text-sm leading-relaxed text-gray-800"
-          :class="
-            review.spoilerProtected && !revealed
-              ? 'filter blur-[3px] select-none'
-              : ''
-          "
+          :class="isSpoiler && !revealed ? 'filter blur-[3px] select-none' : ''"
         >
           <p class="whitespace-pre-line">{{ review.body }}</p>
           <div
-            v-if="review.spoilerProtected && !revealed"
+            v-if="isSpoiler && !revealed"
             class="absolute inset-0 flex items-center justify-center bg-white/40 text-xs text-amber-800"
           >
             스포일러 보호 중 · 보기 버튼을 눌러 확인
@@ -51,7 +62,7 @@
         </div>
 
         <button
-          v-if="review.spoilerProtected"
+          v-if="isSpoiler"
           type="button"
           class="text-xs text-amber-700 underline"
           @click="toggleReveal"
@@ -92,33 +103,32 @@ const toggleReveal = () => {
 };
 
 const initial = computed(() => {
-  const src =
-    props.review.authorNickname ||
-    props.review.authorId ||
-    props.review.user?.name ||
-    "";
+  const src = props.review.authorNickname || props.review.userId || "";
   return src ? src.charAt(0) : "?";
 });
 
-const authorLabel = computed(() => {
-  const name = props.review.authorNickname || props.review.user?.name;
-  const id = props.review.authorId || props.review.user?.username || props.review.userId;
-  if (name && id) return `${name} · @${id}`;
-  if (name) return name;
-  if (id) return `@${id}`;
-  return "";
+const isSpoiler = computed(
+  () =>
+    props.review.spoiler ??
+    props.review.isSpoiler ??
+    props.review.spoilerProtected ??
+    false
+);
+
+const unitLabel = computed(() => {
+  const catId = Number(props.review.contentCategoryId);
+  if (!Number.isNaN(catId)) {
+    return catId === 1 ? "권" : "화"; // 1: 도서, 그 외: 화 단위
+  }
+  const cat = (props.review.categoryLabel || "").toLowerCase();
+  if (cat.includes("도서") || cat.includes("book")) return "권";
+  return "화";
 });
 
-const contentLabel = computed(() => {
-  const title = props.review.contentTitle || props.review.book?.title;
-  const cat = props.review.categoryLabel;
-  if (title && cat) return `${title} · ${cat}`;
-  return title || "";
-});
-
-const progressLabel = computed(() => {
-  if (props.review.myProgress != null) return `진행 ${props.review.myProgress}`;
-  if (props.review.progress != null) return `진행 ${props.review.progress}`;
+const spoilerRangeLabel = computed(() => {
+  if (props.review.spoilerUntil != null) {
+    return `스포 ${props.review.spoilerUntil}${unitLabel.value}까지`;
+  }
   return "";
 });
 </script>
