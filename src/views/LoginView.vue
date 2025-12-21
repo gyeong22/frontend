@@ -61,7 +61,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { login } from '@/api/user' // ✅ user.js에 정의된 login 메서드
+import { login, getRanking } from '@/api/user' 
 
 const user_id = ref('')
 const password = ref('')
@@ -70,17 +70,18 @@ const store = useUserStore()
 
 const handleLogin = async () => {
   try {
-    // 1️⃣ 백엔드로 로그인 요청
+
+    await getRanking()
+
     const res = await login({
       user_id: user_id.value,
       password: password.value,
     })
 
-    // 2️⃣ 로그인 성공 시 (응답으로 유저 정보 받았다고 가정)
     if (res && res.data) {
       store.login(res.data)
       alert('로그인 성공!')
-      router.push('/') // ✅ 홈으로 리다이렉트
+      router.push('/') 
     }
   } catch (err) {
     console.error(err)

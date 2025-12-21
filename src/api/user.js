@@ -45,3 +45,11 @@ export const unblockUser = (blockedId)=>{
 }
 
 export const getBlockUsers = () => api.get(`/blocks`)
+
+
+
+//이미지 업로드
+
+export const getPresign = (data) => api.post('/images/presign', data)
+
+export const getRanking = () => api.get('/ranking/reviews')

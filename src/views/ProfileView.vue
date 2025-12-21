@@ -8,10 +8,27 @@
         <div class="flex flex-col items-center text-center">
           <!-- 프로필 이미지 -->
           <div
-            class="h-20 w-20 rounded-full bg-gradient-to-br from-[#D9D5CA] to-[#F0EEE9] text-white text-2xl font-bold flex items-center justify-center shadow-sm"
-          >
-            {{ user.nickname.charAt(0) }}
-          </div>
+  class="h-20 w-20 rounded-full overflow-hidden shadow-sm
+         flex items-center justify-center
+         bg-gradient-to-br from-[#D9D5CA] to-[#F0EEE9]"
+>
+  <!-- 이미지 있을 때 -->
+  <img
+    v-if="user.profile_image_url"
+    :src="`${S3_BASE_URL}/${user.profile_image_url}`"
+    alt="profile"
+    class="h-full w-full object-cover"
+  />
+
+  <!-- 이미지 없을 때 -->
+  <span
+    v-else
+    class="text-white text-2xl font-bold"
+  >
+    {{ user.nickname.charAt(0) }}
+  </span>
+</div>
+
 
           <!-- 닉네임 / 아이디 -->
           <h1 class="mt-3 text-lg font-semibold text-[#2E2A24]">{{ user.nickname }}</h1>
@@ -148,6 +165,9 @@ import { getFollowCount, getUserInfo } from '@/api/user'
 
 const store = useUserStore()
 const followCount = ref({ followers: 0, followees: 0 })
+const S3_BASE_URL =
+  'https://mayangsik-uploaded-files.s3.ap-northeast-2.amazonaws.com'
+
 
 const user = ref({
   userId : '',
@@ -157,28 +177,23 @@ const user = ref({
 })
 
 
-// ✅ store.userId를 직접 감시
 watch(
   () => store.userId,
   async (newUserId) => {
     if (!newUserId) {
-      console.log('⚠️ userId 없음')
+      console.log('userId 없음')
       return
     }
 
-    console.log('✅ 감지된 userId:', newUserId)
     try {
      const followRes = await getFollowCount(newUserId)
   followCount.value = followRes.data
 
-  console.log('✅ followCount 불러오기 성공:', followRes.data)
-
   const userRes = await getUserInfo(newUserId)
   user.value = userRes.data
 
-  console.log('✅ user data 불러오기 성공:', userRes.data)
     } catch (err) {
-      console.error('❌ 팔로우 수 불러오기 실패:', err)
+      console.error('팔로우 수 불러오기 실패:', err)
     }
   },
   { immediate: true }

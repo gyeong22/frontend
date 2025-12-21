@@ -75,7 +75,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { updateUserProfile } from '@/api/user'
+import { updateUserProfile, getPresign } from '@/api/user'
 
 const router = useRouter()
 const store = useUserStore()
@@ -100,23 +100,56 @@ const onFileChange = (e) => {
 }
 
 const handleSubmit = async () => {
-  const formData = new FormData()
-  formData.append('nickname', form.value.nickname)
-  formData.append('bio', form.value.bio)
+
+  let profileImageKey = form.value.profile_image_url
+
   if (selectedFile.value) {
-    // 여기에 이제 이미지 업로드 기능 추가해야 함
-    formData.append('profile_image', selectedFile.value)
+    try {
+      const file = selectedFile.value
+      const extension = file.name.split('.').pop().toLowerCase()
+
+    
+      const presignRes = await getPresign({
+        domain: 'PROFILE',
+        extension,
+      })
+
+      const { uploadUrl, objectKey } = presignRes.data
+      console.log(presignRes.data)
+      
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      })
+
+      
+      profileImageKey = objectKey
+    } catch (err) {
+      console.error(err)
+      alert('프로필 이미지 업로드 중 오류가 발생했습니다.')
+      return
+    }
   }
 
   try {
-    await updateUserProfile(store.userId, formData)
+    await updateUserProfile(store.userId, {
+      nickname: form.value.nickname,
+      bio: form.value.bio,
+      profile_image_url: profileImageKey,
+    })
+
     alert('프로필이 성공적으로 수정되었습니다!')
     router.push(`/users/${store.userId}`)
   } catch (err) {
     console.error(err)
     alert('프로필 수정 중 오류가 발생했습니다.')
   }
+
 }
+
 </script>
 
 <style scoped>
