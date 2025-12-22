@@ -51,8 +51,68 @@
           </div>
         </header>
 
-        <!-- Tabs -->
-        <SearchTabs v-model="activeTab" :tabs="tabs" />
+        <!-- Tabs & Sort -->
+        <div class="flex items-center justify-between">
+          <SearchTabs v-model="activeTab" :tabs="tabs" />
+          <div
+            v-if="activeTab === 'contents'"
+            class="flex gap-2 text-xs text-gray-600"
+          >
+            <button
+              type="button"
+              class="rounded-full border px-3 py-1"
+              :class="
+                contentSort === 'latest'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-gray-200'
+              "
+              @click="setContentSort('latest')"
+            >
+              최신순
+            </button>
+            <button
+              type="button"
+              class="rounded-full border px-3 py-1"
+              :class="
+                contentSort === 'popular'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-gray-200'
+              "
+              @click="setContentSort('popular')"
+            >
+              좋아요순
+            </button>
+          </div>
+          <div
+            v-else-if="activeTab === 'reviews'"
+            class="flex gap-2 text-xs text-gray-600"
+          >
+            <button
+              type="button"
+              class="rounded-full border px-3 py-1"
+              :class="
+                reviewSort === 'latest'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-gray-200'
+              "
+              @click="setReviewSort('latest')"
+            >
+              최신순
+            </button>
+            <button
+              type="button"
+              class="rounded-full border px-3 py-1"
+              :class="
+                reviewSort === 'popular'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-gray-200'
+              "
+              @click="setReviewSort('popular')"
+            >
+              좋아요순
+            </button>
+          </div>
+        </div>
 
         <!-- Results -->
         <div class="mt-4">
@@ -98,9 +158,7 @@
                     class="rounded-full border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     @click="goToTab('contents')"
                   >
-                    컨텐츠 더보기 ({{
-                      filteredContents.length - previewContents.length
-                    }})
+                    컨텐츠 더보기
                   </button>
                 </div>
               </div>
@@ -127,9 +185,7 @@
                     class="rounded-full border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     @click="goToTab('reviews')"
                   >
-                    리뷰 더보기 ({{
-                      filteredReviews.length - previewReviews.length
-                    }})
+                    리뷰 더보기
                   </button>
                 </div>
               </div>
@@ -158,9 +214,7 @@
                     class="rounded-full border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     @click="goToTab('users')"
                   >
-                    사용자 더보기 ({{
-                      filteredUsers.length - previewUsers.length
-                    }})
+                    사용자 더보기
                   </button>
                 </div>
               </div>
@@ -245,7 +299,15 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
+import {
+  computed,
+  reactive,
+  ref,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+} from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { useContentSearch } from "@/composables/useContentSearch";
@@ -294,6 +356,8 @@ const userPage = ref(0);
 const hasMoreContents = ref(true);
 const hasMoreReviews = ref(true);
 const hasMoreUsers = ref(true);
+const contentSort = ref("latest");
+const reviewSort = ref("latest");
 const contentSentinel = ref(null);
 const reviewSentinel = ref(null);
 const userSentinel = ref(null);
@@ -740,8 +804,7 @@ const tabs = computed(() => [
   {
     id: "all",
     label: "전체",
-    count:
-      totalContents.value + totalReviews.value + totalUsers.value,
+    count: totalContents.value + totalReviews.value + totalUsers.value,
   },
   { id: "contents", label: "컨텐츠", count: totalContents.value },
   { id: "reviews", label: "리뷰", count: totalReviews.value },
@@ -927,6 +990,7 @@ const baseContentParams = () => {
     contentCategoryId: singleCategoryId ?? undefined,
     seenOnly: Boolean(filters.seenOnly),
     size,
+    sort: contentSort.value,
   };
 };
 
@@ -944,7 +1008,7 @@ const baseReviewParams = () => {
     onlySpoilerSafe: Boolean(filters.onlySpoilerSafe),
     noSpoilerOnly: Boolean(filters.noSpoilerOnly),
     size,
-    sort: "latest",
+    sort: reviewSort.value,
   };
 };
 
@@ -955,8 +1019,7 @@ const baseUserParams = () => {
 };
 
 const loadContents = async ({ append = false } = {}) => {
-  if (append && (!hasMoreContents.value || isLoadingMoreContents.value))
-    return;
+  if (append && (!hasMoreContents.value || isLoadingMoreContents.value)) return;
   const page = append ? contentPage.value + 1 : 0;
   const params = { ...baseContentParams(), page, append };
   if (append) isLoadingMoreContents.value = true;
@@ -1051,6 +1114,18 @@ const anyError = computed(
 const goToTab = (tabId) => {
   if (!["all", "contents", "reviews", "users"].includes(tabId)) return;
   router.replace({ query: { ...route.query, tab: tabId } });
+};
+
+const setContentSort = (sort) => {
+  if (sort === contentSort.value) return;
+  contentSort.value = sort;
+  loadContents();
+};
+
+const setReviewSort = (sort) => {
+  if (sort === reviewSort.value) return;
+  reviewSort.value = sort;
+  loadReviews();
 };
 
 onMounted(async () => {
