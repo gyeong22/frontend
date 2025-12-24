@@ -109,7 +109,7 @@
           </div>
 
           <!-- 정렬 옵션 (나의 리뷰만) -->
-          <div
+          <!-- <div
             v-if="activeTab === 'reviews'"
             class="mb-3 flex justify-end gap-2 text-xs text-gray-600"
           >
@@ -123,7 +123,7 @@
             >
               좋아요순
             </button>
-          </div>
+          </div> -->
 
           <!-- 나의 리뷰 -->
           <div v-if="activeTab === 'reviews'" class="divide-y">
@@ -394,7 +394,7 @@ watch(
     try {
       isLoading.value = true;
 
-      /** ✅ 1) 유저/팔로우 먼저 */
+      
       const [userRes, followRes] = await Promise.all([
         getUserInfo(newUserId),
         getFollowCount(newUserId),
@@ -402,15 +402,17 @@ watch(
       user.value = userRes.data;
       followCount.value = followRes.data;
 
-      /** ✅ 2) 내 서재 */
-      const res = await getMyLibrary();
-      const raw = res.data ?? res;
-      myLibraryRaw.value = raw;
+      
+      const res = await getMyLibrary()
+      const raw = res.data ?? res
+      myLibraryRaw.value = raw
+
 
       stats.value.reviewCount = raw.length;
 
-      /** ✅ 3) contentId 기준 책 묶기 */
-      const bookMap = {};
+      
+      const bookMap = {}
+
 
       raw.forEach((item) => {
         const cid = item.contentId;
@@ -425,12 +427,16 @@ watch(
           };
         }
 
-        bookMap[cid].reviews.push(toReviewCardShape(item));
-      }); // ✅ 여기서 forEach 끝!!!
 
-      /** ✅ 4) library / reviews 세팅 (forEach 밖) */
-      library.value = Object.values(bookMap);
-      stats.value.libraryCount = library.value.length;
+        bookMap[cid].reviews.push(toReviewCardShape(item))
+      }) 
+
+      
+      library.value = Object.values(bookMap)
+      stats.value.libraryCount = library.value.length
+
+      reviews.value = raw.map(toReviewCardShape)
+
 
       reviews.value = raw.map(toReviewCardShape);
     } catch (e) {
