@@ -1,19 +1,17 @@
 <template>
   <div class="min-h-screen bg-[#F1F0EC]">
     <div class="mx-auto flex max-w-6xl gap-8 px-6 py-10">
-      <!-- 왼쪽: 프로필 사이드바 -->
+      <!-- 왼쪽: 프로필 -->
       <aside
         class="sticky top-10 ml-4 h-fit w-64 flex-shrink-0 rounded-2xl border border-[#EAE9E3] bg-white p-6 shadow-sm"
       >
         <div class="flex flex-col items-center text-center">
-          <!-- 프로필 이미지 -->
           <div
             class="h-20 w-20 rounded-full overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-[#D9D5CA] to-[#F0EEE9]"
           >
             <img
               v-if="user.profile_image_url"
               :src="`${S3_BASE_URL}/${user.profile_image_url}`"
-              alt="profile"
               class="h-full w-full object-cover"
             />
             <span v-else class="text-white text-2xl font-bold">
@@ -30,150 +28,102 @@
             {{ user.bio }}
           </p>
 
-          <!-- 팔로워 / 팔로잉 -->
           <div class="mt-4 flex gap-3 text-xs text-gray-600">
-            <RouterLink
-              :to="`/users/${store.userId}/followers`"
-              class="hover:text-[#3C3832] hover:underline transition"
-            >
+            <RouterLink :to="`/users/${store.userId}/followers`">
               <strong>{{ followCount.followers }}</strong> 팔로워
             </RouterLink>
-            <RouterLink
-              :to="`/users/${store.userId}/followees`"
-              class="hover:text-[#3C3832] hover:underline transition"
-            >
+            <RouterLink :to="`/users/${store.userId}/followees`">
               <strong>{{ followCount.followees }}</strong> 팔로잉
             </RouterLink>
           </div>
 
-          <!-- 프로필 버튼 -->
           <div class="mt-6 flex w-full gap-2">
             <RouterLink
               :to="`/users/${store.userId}/edit`"
-              class="flex-1 rounded-full border border-[#DCD8D1] bg-[#F8F7F3] px-4 py-1.5 text-xs text-[#4B463B] hover:bg-[#EAE9E3] transition font-medium shadow-sm"
+              class="flex-1 rounded-full border bg-[#F8F7F3] px-4 py-1.5 text-xs"
             >
               프로필 수정
             </RouterLink>
             <RouterLink
               :to="`/users/${store.userId}/settings`"
-              class="flex-1 rounded-full border border-[#DCD8D1] bg-[#F8F7F3] px-4 py-1.5 text-xs text-[#4B463B] hover:bg-[#EAE9E3] transition font-medium shadow-sm"
+              class="flex-1 rounded-full border bg-[#F8F7F3] px-4 py-1.5 text-xs"
             >
               설정
             </RouterLink>
           </div>
 
-          <!-- 활동 요약 -->
           <div class="mt-5 w-full rounded-xl bg-[#F8F7F3] px-4 py-3">
-            <div class="flex justify-between text-xs text-[#6B675E]">
-              <div class="flex flex-col items-center flex-1">
-                <span class="text-sm font-semibold text-[#2E2A24]">
-                  {{ stats.libraryCount }}
-                </span>
-                <span>내 서재</span>
+            <div class="flex justify-between text-xs">
+              <div class="flex-1 text-center">
+                <span class="text-sm font-semibold">{{ stats.libraryCount }}</span>
+                <div>내 서재</div>
               </div>
-              <div class="flex flex-col items-center flex-1">
-                <span class="text-sm font-semibold text-[#2E2A24]">
-                  {{ stats.reviewCount }}
-                </span>
-                <span>리뷰</span>
+              <div class="flex-1 text-center">
+                <span class="text-sm font-semibold">{{ stats.reviewCount }}</span>
+                <div>리뷰</div>
               </div>
-              <div class="flex flex-col items-center flex-1">
-                <span class="text-sm font-semibold text-[#2E2A24]">
-                  {{ stats.likeCount }}
-                </span>
-                <span>좋아요</span>
+              <div class="flex-1 text-center">
+                <span class="text-sm font-semibold">{{ stats.likeCount }}</span>
+                <div>좋아요</div>
               </div>
             </div>
           </div>
         </div>
       </aside>
 
-      <!-- 오른쪽: 콘텐츠 영역 -->
+      <!-- 오른쪽 -->
       <main class="flex-1 flex justify-center">
         <div class="w-full max-w-2xl">
-          <!-- 상단 탭 -->
-          <div class="mb-4 flex gap-6 border-b border-[#EAE9E3] text-sm">
+          <!-- 탭 -->
+          <div class="mb-4 flex gap-6 border-b text-sm">
             <button
               v-for="tab in tabs"
               :key="tab.key"
               @click="handleTabClick(tab.key)"
-              class="pb-2 transition"
+              class="pb-2"
               :class="
                 activeTab === tab.key
-                  ? 'border-b-2 border-[#2E2A24] font-semibold text-[#2E2A24]'
-                  : 'text-[#7A766E] hover:text-[#2E2A24]'
+                  ? 'border-b-2 border-[#2E2A24] font-semibold'
+                  : 'text-gray-400'
               "
             >
               {{ tab.label }}
             </button>
           </div>
 
-          <!-- 정렬 옵션 (나의 리뷰만) -->
-          <!-- <div
-            v-if="activeTab === 'reviews'"
-            class="mb-3 flex justify-end gap-2 text-xs text-gray-600"
-          >
-            <button
-              class="rounded-full border border-[#DDD9CF] px-3 py-1 hover:bg-[#EAE9E3] transition"
-            >
-              최신순
-            </button>
-            <button
-              class="rounded-full border border-[#DDD9CF] px-3 py-1 hover:bg-[#EAE9E3] transition"
-            >
-              좋아요순
-            </button>
-          </div> -->
-
           <!-- 나의 리뷰 -->
           <div v-if="activeTab === 'reviews'" class="divide-y">
-            <ReviewCard v-for="item in reviews" :key="item.id" :review="item" />
+            <ReviewCard v-for="r in reviews" :key="r.id" :review="r" />
 
             <p
-              v-if="!isLoading && !reviews.length"
-              class="py-8 text-center text-sm text-gray-500"
-            >
-              표시할 리뷰가 없습니다.
-            </p>
-
-            <div ref="reviewSentinel" class="h-1"></div>
-
-            <p
-              v-if="isLoadingMore"
-              class="py-4 text-center text-xs text-gray-400"
-            >
-              불러오는 중...
-            </p>
+    v-if="!reviews.length"
+    class="py-20 text-center text-sm text-gray-500"
+  >
+    표시할 리뷰가 없습니다.
+  </p>
           </div>
 
           <!-- 좋아요 -->
-          <div v-else-if="activeTab === 'likes'" class="divide-y">
-            <ReviewCard
-              v-for="item in likedReviews"
-              :key="item.id"
-              :review="item"
-            />
+          <!-- 좋아요 -->
+<div v-else-if="activeTab === 'likes'" class="divide-y">
+  <ReviewCard
+    v-for="r in likedReviews"
+    :key="r.id"
+    :review="r"
+  />
 
-            <p
-              v-if="!isLikeLoading && !likedReviews.length"
-              class="py-8 text-center text-sm text-gray-500"
-            >
-              좋아요한 글이 없습니다.
-            </p>
+  <!-- ✅ 좋아요 없음 안내 문구 (복구) -->
+  <p
+    v-if="!likedReviews.length"
+    class="py-20 text-center text-sm text-gray-500"
+  >
+    좋아요한 글이 없습니다.
+  </p>
+</div>
 
-            <div ref="likeSentinel" class="h-1"></div>
 
-            <p
-              v-if="isLikeLoadingMore"
-              class="py-4 text-center text-xs text-gray-400"
-            >
-              불러오는 중...
-            </p>
-          </div>
-
-          <!-- 내 서재 (탭 내부에서만 viewMode로 분기) -->
+          <!-- 내 서재 -->
           <div v-else-if="activeTab === 'library'">
-            <!-- ✅ 서재 그리드 -->
             <div
               v-if="viewMode === 'library'"
               class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-14"
@@ -181,41 +131,56 @@
               <div
                 v-for="book in library"
                 :key="book.id"
-                class="flex flex-col items-center"
+                class="flex flex-col items-center cursor-pointer"
+                @click="goToMyReviews(book)"
               >
-                <!-- 책 오브젝트 (크기 완전 고정) -->
-                <div
-                  class="relative w-[140px] h-[200px] bg-[#EAE9E3] shadow-[0_12px_30px_rgba(0,0,0,0.18)] transition-transform duration-200 hover:-translate-y-1"
-                >
-                  <img
-                    :src="book.coverImage"
-                    alt="book cover"
-                    class="absolute inset-0 h-full w-full object-cover"
+                <!-- 책 -->
+                <div class="relative w-[140px] h-[200px] transition hover:-translate-y-1">
+                  <!-- 책등 -->
+                  <div
+                    class="absolute left-0 top-0 h-full w-[14px] shadow-inner"
+                    :class="book.theme.spine"
                   />
+
+                  <!-- 표지 -->
+                  <div class="absolute inset-0 ml-[14px] rounded-sm shadow-lg overflow-hidden">
+                    <div class="absolute inset-0" :class="book.theme.cover" />
+
+                    <!-- 종이 질감 -->
+                    <div
+                      class="absolute inset-0
+                             bg-gradient-to-b
+                             from-white/30 via-transparent to-black/20"
+                    />
+
+                    <!-- 중앙 타이틀 -->
+                    <div
+                      class="absolute left-1/2 top-1/2 w-[92px]
+                             -translate-x-1/2 -translate-y-1/2
+                             bg-white/85 px-2 py-3 shadow-sm"
+                    >
+                      <p class="text-[11px] font-medium text-[#2E2A24] text-center line-clamp-4">
+                        {{ book.title }}
+                      </p>
+                    </div>
+
+                    <!-- 하단 -->
+                    <div
+                      class="absolute bottom-0 h-10 w-full"
+                      :class="book.theme.bottom"
+                    />
+                  </div>
                 </div>
 
-                <!-- 책 정보 -->
-                <div class="mt-4 w-[140px] text-center space-y-0.5">
-                  <p
-                    class="text-sm font-semibold text-[#2E2A24] leading-snug line-clamp-2"
-                  >
+                <div class="mt-4 w-[140px] text-center">
+                  <p class="text-sm font-semibold line-clamp-2">
                     {{ book.title }}
                   </p>
-                  <p class="text-xs text-[#7A766E]">
-                    {{ book.author }}
-                  </p>
-
-                  <button
-                    class="mt-1 text-xs text-[#6B675E] hover:text-[#2E2A24] underline-offset-2 hover:underline transition"
-                    @click="goToMyReviews(book)"
-                  >
-                    내 리뷰 보기 &gt;
-                  </button>
+                  <p class="text-xs text-gray-500">{{ book.author }}</p>
                 </div>
               </div>
 
-              <!-- 비어있을 때 -->
-              <p
+               <p
                 v-if="!library.length"
                 class="col-span-full py-20 text-center text-sm text-gray-500"
               >
@@ -223,81 +188,112 @@
               </p>
             </div>
 
-            <!-- ✅ 책 단위 리뷰 상세 (같은 톤 유지) -->
+            <!-- 책 리뷰 -->
             <div v-else class="space-y-6">
-              <div class="flex items-center gap-4">
-                <button
-                  class="text-sm text-[#6B675E] hover:underline"
-                  @click="backToLibrary"
-                >
-                  ← 내 서재
-                </button>
+  <!-- 뒤로가기 -->
+  <button
+    class="text-sm text-[#6B675E] hover:underline"
+    @click="backToLibrary"
+  >
+    ← 내 서재
+  </button>
 
-                <p class="text-sm text-gray-400">
-                  {{ selectedBook?.title }}
-                </p>
-              </div>
+  <!-- ✅ 책 소개 헤더 (복구됨) -->
+  <div class="flex gap-6 items-start">
+    <!-- 책 오브젝트 (작은 버전) -->
+    <div class="relative w-28 h-40 flex-shrink-0">
+      <!-- 책등 -->
+      <div
+        class="absolute left-0 top-0 h-full w-[10px] shadow-inner"
+        :class="selectedBook.theme.spine"
+      />
 
-              <!-- ✅ 책 헤더: 휑함 해결(태그/리뷰개수/문장) -->
-              <div class="flex gap-6 items-start">
-                <img
-                  :src="selectedBook?.coverImage"
-                  class="w-28 h-40 object-cover shadow-sm"
-                  alt="cover"
-                />
-                <div class="min-w-0 flex-1 space-y-3">
-                  <div class="space-y-1">
-                    <p
-                      class="text-lg font-semibold text-[#2E2A24] leading-snug"
-                    >
-                      {{ selectedBook?.title }}
-                    </p>
-                    <p class="text-sm text-[#7A766E]">
-                      {{ selectedBook?.author }}
-                    </p>
-                  </div>
+      <!-- 표지 -->
+      <div
+        class="absolute inset-0 ml-[10px] rounded-sm shadow-md overflow-hidden"
+      >
+        <div class="absolute inset-0" :class="selectedBook.theme.cover" />
+        <div
+          class="absolute inset-0
+                 bg-gradient-to-b
+                 from-white/20 via-transparent to-black/20"
+        />
 
-                  <!-- 태그 (없으면 기본 태그 표시) -->
-                  <div class="flex flex-wrap gap-1.5">
-                    <span
-                      v-for="tag in selectedBookTags"
-                      :key="tag"
-                      class="rounded-full border border-[#E5E3DD] bg-[#F8F7F3] px-2.5 py-1 text-[11px] text-[#5E594F]"
-                    >
-                      #{{ tag }}
-                    </span>
-                  </div>
+        <!-- 중앙 타이틀 -->
+        <div
+          class="absolute left-1/2 top-1/2 w-[70px]
+                 -translate-x-1/2 -translate-y-1/2
+                 bg-white/85 px-2 py-2 shadow-sm"
+        >
+          <p
+            class="text-[10px] font-medium text-[#2E2A24]
+                   text-center line-clamp-4"
+          >
+            {{ selectedBook.title }}
+          </p>
+        </div>
 
-                  <!-- 리뷰 개수 + 문장 -->
-                  <div class="flex items-center gap-2">
-                    <span
-                      class="inline-flex items-center rounded-full border border-[#DDD9CF] bg-white px-2.5 py-1 text-[11px] text-[#6B675E]"
-                    >
-                      내 리뷰 {{ bookReviews.length }}개
-                    </span>
-                    <p class="text-xs text-[#8A867D]">
-                      이 책에 남긴 나의 기록을 모아봤어요.
-                    </p>
-                  </div>
-                </div>
-              </div>
+        <!-- 하단 -->
+        <div
+          class="absolute bottom-0 h-7 w-full"
+          :class="selectedBook.theme.bottom"
+        />
+      </div>
+    </div>
 
-              <div class="divide-y">
-                <ReviewCard v-for="r in bookReviews" :key="r.id" :review="r" />
+    <!-- 책 메타 정보 -->
+    <div class="min-w-0 flex-1 space-y-3">
+      <div class="space-y-1">
+        <p class="text-lg font-semibold text-[#2E2A24] leading-snug">
+          {{ selectedBook.title }}
+        </p>
+        <p class="text-sm text-[#7A766E]">
+          {{ selectedBook.author }}
+        </p>
+      </div>
 
-                <p
-                  v-if="!bookReviews.length"
-                  class="py-10 text-center text-sm text-gray-500"
-                >
-                  이 책에 작성한 리뷰가 아직 없습니다.
-                </p>
-              </div>
-            </div>
-          </div>
+      <!-- 태그 -->
+      <div class="flex flex-wrap gap-1.5">
+        <span
+          v-for="tag in selectedBookTags"
+          :key="tag"
+          class="rounded-full border border-[#E5E3DD]
+                 bg-[#F8F7F3]
+                 px-2.5 py-1 text-[11px] text-[#5E594F]"
+        >
+          #{{ tag }}
+        </span>
+      </div>
 
-          <!-- fallback -->
-          <div v-else class="py-10 text-center text-sm text-gray-500">
-            표시할 콘텐츠가 없습니다.
+      <!-- 문구 -->
+      <div class="flex items-center gap-2">
+        <span
+          class="inline-flex items-center rounded-full
+                 border border-[#DDD9CF]
+                 bg-white px-2.5 py-1
+                 text-[11px] text-[#6B675E]"
+        >
+          내 리뷰 {{ bookReviews.length }}개
+        </span>
+        <p class="text-xs text-[#8A867D]">
+          이 책에 남긴 나의 기록을 모아봤어요.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 리뷰 리스트 -->
+  <div class="divide-y">
+    <ReviewCard v-for="r in bookReviews" :key="r.id" :review="r" />
+
+    <p
+      v-if="!bookReviews.length"
+      class="py-10 text-center text-sm text-gray-500"
+    >
+      이 책에 작성한 리뷰가 아직 없습니다.
+    </p>
+  </div>
+</div>
           </div>
         </div>
       </main>
@@ -306,21 +302,23 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useUserStore } from "@/stores/user";
-import { getFollowCount, getUserInfo, getMyLibrary } from "@/api/user";
+import {
+  getFollowCount,
+  getUserInfo,
+  getMyLibrary,
+  getMyLikedReviews,
+} from "@/api/user";
 import ReviewCard from "@/components/ReviewCard.vue";
-// import MyLibraryReviewCard from "@/components/MyLibraryReviewCard.vue"
+
+const S3_BASE_URL =
+  "https://mayangsik-uploaded-files.s3.ap-northeast-2.amazonaws.com/";
 
 const store = useUserStore();
 
 const followCount = ref({ followers: 0, followees: 0 });
-
-const stats = ref({
-  libraryCount: 0,
-  reviewCount: 0,
-  likeCount: 0,
-});
+const stats = ref({ libraryCount: 0, reviewCount: 0, likeCount: 0 });
 
 const tabs = [
   { key: "library", label: "내 서재" },
@@ -333,11 +331,9 @@ const viewMode = ref("library");
 const selectedBook = ref(null);
 const bookReviews = ref([]);
 
-const myLibraryRaw = ref([]);
 const library = ref([]);
 const reviews = ref([]);
-
-const isLoading = ref(false);
+const likedReviews = ref([]);
 
 const user = ref({
   user_id: "",
@@ -346,113 +342,139 @@ const user = ref({
   profile_image_url: "",
 });
 
-const formatDateLabel = (iso) => {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-};
+/* -----------------------------
+   🎨 Book Theme
+----------------------------- */
+const BOOK_THEMES = [
+  {
+    cover: "bg-gradient-to-b from-[#F6F1EA] to-[#E7DDD0]",
+    spine: "bg-[#D9CCBB]",
+    bottom: "bg-[#CFC3B4]",
+  },
+  {
+    cover: "bg-gradient-to-b from-[#EDF3F9] to-[#D9E6F2]",
+    spine: "bg-[#C7D6E5]",
+    bottom: "bg-[#BCCCDC]",
+  },
+  {
+    cover: "bg-gradient-to-b from-[#EDF4F0] to-[#D9E8DE]",
+    spine: "bg-[#C7D7CD]",
+    bottom: "bg-[#BCCFC3]",
+  },
+  {
+    cover: "bg-gradient-to-b from-[#F6EEF0] to-[#E6D4D8]",
+    spine: "bg-[#D5C0C6]",
+    bottom: "bg-[#CCB5BA]",
+  },
+  {
+    cover: "bg-gradient-to-b from-[#F2F0F7] to-[#DED8EC]",
+    spine: "bg-[#CFC8E0]",
+    bottom: "bg-[#C5BDD8]",
+  },
+];
 
-const getCoverImage = (item) => {
-  return `https://image.yes24.com/goods/${item.contentId}/L`;
-};
+const getTheme = (id) => BOOK_THEMES[id % BOOK_THEMES.length];
 
-/** ✅ ReviewCard가 기대하는 shape로 통일 */
+/* -----------------------------
+   ✅ ReviewCard 공통 매핑 (내 리뷰 / 서재)
+----------------------------- */
 const toReviewCardShape = (item) => ({
   id: String(item.reviewId),
-
   title: item.title,
   body: item.content,
-  createdAtLabel: formatDateLabel(item.createdAt),
-
   authorNickname: user.value.nickname,
   userId: user.value.user_id,
-  profileImageUrl: user.value.profile_image_url,
+  contentTitle: item.contentName,
+  contentAuthor: item.contentAuthor,
+  tags: item.tags?.map((t) => t.tagName) ?? [],
+  createdAt: item.createdAt,
+  likeCount: item.likeCount ?? 0,
+  likedByMe: item.likedByMe ?? false,
+  imageUrls: item.imageUrls ?? [],
+  contentCategoryId: item.contentCategoryId,
+});
+
+/* -----------------------------
+   ✅ 좋아요 전용 매핑 (🔥 핵심 추가)
+----------------------------- */
+const toReviewCardFromLiked = (item) => ({
+  id: String(item.reviewId),
+
+  // ReviewCard 기본 필드
+  title: item.title,
+  body: item.content,
+
+  authorNickname: item.nickname,
+  userId: item.userId,
 
   contentTitle: item.contentName,
   contentAuthor: item.contentAuthor,
+  contentCategoryId: item.contentCategoryId,
 
-  spoiler: item.spoilerUntil != null && Number(item.spoilerUntil) > 0,
+  tags: Array.isArray(item.tags)
+    ? item.tags.map((t) => t.tagName)
+    : [],
+
+  // 날짜 / 메타
+  createdAt: item.createdAt,
   spoilerUntil: item.spoilerUntil,
 
-  tags: item.tags?.map((t) => t.tagName) ?? [],
-  contentTags: item.contentTags?.map((t) => t.tagName) ?? [],
-  imageUrls: Array.isArray(item.imageUrls) ? item.imageUrls : [],
+  // 좋아요
+  likeCount: item.likeCount ?? 0,
+  likedByMe: item.likedByMe ?? false,
+
+  // 이미지
+  imageUrls: item.imageUrls ?? [],
 });
 
-console.log(toReviewCardShape);
 
+/* -----------------------------
+   User / Library / Reviews
+----------------------------- */
 watch(
   () => store.userId,
-  async (newUserId) => {
-    if (!newUserId) return;
+  async (uid) => {
+    if (!uid) return;
 
-    try {
-      isLoading.value = true;
+    const [userRes, followRes] = await Promise.all([
+      getUserInfo(uid),
+      getFollowCount(uid),
+    ]);
 
-      
-      const [userRes, followRes] = await Promise.all([
-        getUserInfo(newUserId),
-        getFollowCount(newUserId),
-      ]);
-      user.value = userRes.data;
-      followCount.value = followRes.data;
+    user.value = userRes.data;
+    followCount.value = followRes.data;
 
-      
-      const res = await getMyLibrary()
-      const raw = res.data ?? res
-      myLibraryRaw.value = raw
+    const raw = (await getMyLibrary()).data ?? [];
+    stats.value.reviewCount = raw.length;
 
+    const map = {};
+    raw.forEach((r) => {
+      if (!map[r.contentId]) {
+        map[r.contentId] = {
+          id: r.contentId,
+          title: r.contentName,
+          author: r.contentAuthor,
+          theme: getTheme(r.contentId),
+          reviews: [],
+        };
+      }
+      map[r.contentId].reviews.push(toReviewCardShape(r));
+    });
 
-      stats.value.reviewCount = raw.length;
-
-      
-      const bookMap = {}
-
-
-      raw.forEach((item) => {
-        const cid = item.contentId;
-
-        if (!bookMap[cid]) {
-          bookMap[cid] = {
-            id: cid,
-            title: item.contentName,
-            author: item.contentAuthor,
-            coverImage: getCoverImage(item),
-            reviews: [],
-          };
-        }
-
-
-        bookMap[cid].reviews.push(toReviewCardShape(item))
-      }) 
-
-      
-      library.value = Object.values(bookMap)
-      stats.value.libraryCount = library.value.length
-
-      reviews.value = raw.map(toReviewCardShape)
-
-
-      reviews.value = raw.map(toReviewCardShape);
-    } catch (e) {
-      console.error("마이페이지 로딩 실패:", e);
-    } finally {
-      isLoading.value = false;
-    }
+    library.value = Object.values(map);
+    stats.value.libraryCount = library.value.length;
+    reviews.value = raw.map(toReviewCardShape);
   },
   { immediate: true }
 );
 
-const handleTabClick = (key) => {
-  activeTab.value = key;
-  if (key === "library") {
+/* -----------------------------
+   Tabs / Navigation
+----------------------------- */
+const handleTabClick = (k) => {
+  activeTab.value = k;
+  if (k === "library") {
     viewMode.value = "library";
-
     selectedBook.value = null;
     bookReviews.value = [];
   }
@@ -470,9 +492,17 @@ const backToLibrary = () => {
   bookReviews.value = [];
 };
 
-const selectedBookTags = computed(() => {
-  if (!selectedBook.value) return ["기록", "독서", "내서재"];
-  const names = selectedBook.value.reviews.flatMap((r) => r.contentTags || []);
-  return [...new Set(names)];
+/* -----------------------------
+   ✅ 좋아요 목록 (여기만 바뀜)
+----------------------------- */
+onMounted(async () => {
+  const res = await getMyLikedReviews();
+
+  console.log(res)
+  likedReviews.value = (res.data.items ?? []).map(
+    toReviewCardFromLiked
+  );
+
+  stats.value.likeCount = likedReviews.value.length;
 });
 </script>

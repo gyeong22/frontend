@@ -51,7 +51,6 @@ export const getBlockUsers = () => api.get(`/blocks`)
 
 
 //이미지 업로드
-
 export const getPresign = (data) => api.post('/images/presign', data)
 
 export const getRanking = () => api.get('/ranking/reviews')
@@ -60,3 +59,5 @@ export const getRanking = () => api.get('/ranking/reviews')
 //내 서재
 
 export const getMyLibrary = () => api.get('/me/library')
+
+export const getMyLikedReviews = () => api.get('/likes/me')
