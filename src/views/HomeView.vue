@@ -87,6 +87,32 @@ const formatDateLabel = (iso) => {
   });
 };
 
+// const normalizeList = (payload) => {
+//   const list = Array.isArray(payload)
+//     ? payload
+//     : Array.isArray(payload?.items)
+//     ? payload.items
+//     : [];
+
+//   return list.map((r) => ({
+//     ...r,
+
+//     // ReviewCard가 쓰는 필드만 alias
+//     id: String(r.reviewId),
+//     body: r.content,
+//     authorNickname: r.nickname ?? r.userId,
+//     createdAtLabel: formatDateLabel(r.createdAt),
+
+//     // 🔥 핵심
+//     imageUrls: Array.isArray(r.imageUrls) ? r.imageUrls : [],
+
+//     // 태그 문자열만 필요하면 여기서 변환
+//     tags: Array.isArray(r.tags)
+//       ? r.tags.map((t) => t?.tagName ?? t).filter(Boolean)
+//       : [],
+//   }));
+// };
+
 const normalizeList = (payload) => {
   const list = Array.isArray(payload)
     ? payload
@@ -115,6 +141,7 @@ const normalizeList = (payload) => {
       viewCount: r.viewCount,
       likedByMe: r.likedByMe,
       tags: tagNames,
+      imageUrls: Array.isArray(r.imageUrls) ? r.imageUrls : [],
     };
   });
 };

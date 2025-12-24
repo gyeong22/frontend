@@ -633,6 +633,7 @@ const normalizedReviews = computed(() => {
       title: r.title,
       body: r.content,
       tags,
+      imageUrls: Array.isArray(r.imageUrls) ? r.imageUrls : [],
       userId: r.userId,
       authorNickname: r.nickname || r.userId,
       createdAt: r.createdAt,
