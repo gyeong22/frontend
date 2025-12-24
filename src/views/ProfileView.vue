@@ -8,9 +8,7 @@
         <div class="flex flex-col items-center text-center">
           <!-- 프로필 이미지 -->
           <div
-            class="h-20 w-20 rounded-full overflow-hidden shadow-sm
-                   flex items-center justify-center
-                   bg-gradient-to-br from-[#D9D5CA] to-[#F0EEE9]"
+            class="h-20 w-20 rounded-full overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-[#D9D5CA] to-[#F0EEE9]"
           >
             <img
               v-if="user.profile_image_url"
@@ -19,7 +17,7 @@
               class="h-full w-full object-cover"
             />
             <span v-else class="text-white text-2xl font-bold">
-              {{ user?.nickname?.charAt(0) || 'M' }}
+              {{ user?.nickname?.charAt(0) || "M" }}
             </span>
           </div>
 
@@ -187,11 +185,7 @@
               >
                 <!-- 책 오브젝트 (크기 완전 고정) -->
                 <div
-                  class="relative w-[140px] h-[200px]
-                         bg-[#EAE9E3]
-                         shadow-[0_12px_30px_rgba(0,0,0,0.18)]
-                         transition-transform duration-200
-                         hover:-translate-y-1"
+                  class="relative w-[140px] h-[200px] bg-[#EAE9E3] shadow-[0_12px_30px_rgba(0,0,0,0.18)] transition-transform duration-200 hover:-translate-y-1"
                 >
                   <img
                     :src="book.coverImage"
@@ -212,9 +206,7 @@
                   </p>
 
                   <button
-                    class="mt-1 text-xs text-[#6B675E]
-                           hover:text-[#2E2A24]
-                           underline-offset-2 hover:underline transition"
+                    class="mt-1 text-xs text-[#6B675E] hover:text-[#2E2A24] underline-offset-2 hover:underline transition"
                     @click="goToMyReviews(book)"
                   >
                     내 리뷰 보기 &gt;
@@ -255,7 +247,9 @@
                 />
                 <div class="min-w-0 flex-1 space-y-3">
                   <div class="space-y-1">
-                    <p class="text-lg font-semibold text-[#2E2A24] leading-snug">
+                    <p
+                      class="text-lg font-semibold text-[#2E2A24] leading-snug"
+                    >
                       {{ selectedBook?.title }}
                     </p>
                     <p class="text-sm text-[#7A766E]">
@@ -268,10 +262,7 @@
                     <span
                       v-for="tag in selectedBookTags"
                       :key="tag"
-                      class="rounded-full border border-[#E5E3DD]
-                             bg-[#F8F7F3]
-                             px-2.5 py-1 text-[11px]
-                             text-[#5E594F]"
+                      class="rounded-full border border-[#E5E3DD] bg-[#F8F7F3] px-2.5 py-1 text-[11px] text-[#5E594F]"
                     >
                       #{{ tag }}
                     </span>
@@ -280,10 +271,7 @@
                   <!-- 리뷰 개수 + 문장 -->
                   <div class="flex items-center gap-2">
                     <span
-                      class="inline-flex items-center rounded-full
-                             border border-[#DDD9CF]
-                             bg-white px-2.5 py-1 text-[11px]
-                             text-[#6B675E]"
+                      class="inline-flex items-center rounded-full border border-[#DDD9CF] bg-white px-2.5 py-1 text-[11px] text-[#6B675E]"
                     >
                       내 리뷰 {{ bookReviews.length }}개
                     </span>
@@ -295,11 +283,7 @@
               </div>
 
               <div class="divide-y">
-                <ReviewCard
-                  v-for="r in bookReviews"
-                  :key="r.id"
-                  :review="r"
-                />
+                <ReviewCard v-for="r in bookReviews" :key="r.id" :review="r" />
 
                 <p
                   v-if="!bookReviews.length"
@@ -322,61 +306,60 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue"
-import { useUserStore } from "@/stores/user"
-import { getFollowCount, getUserInfo, getMyLibrary } from "@/api/user"
-import ReviewCard from "@/components/ReviewCard.vue"
+import { ref, watch, computed } from "vue";
+import { useUserStore } from "@/stores/user";
+import { getFollowCount, getUserInfo, getMyLibrary } from "@/api/user";
+import ReviewCard from "@/components/ReviewCard.vue";
 // import MyLibraryReviewCard from "@/components/MyLibraryReviewCard.vue"
 
+const store = useUserStore();
 
-const store = useUserStore()
-
-const followCount = ref({ followers: 0, followees: 0 })
+const followCount = ref({ followers: 0, followees: 0 });
 
 const stats = ref({
   libraryCount: 0,
   reviewCount: 0,
   likeCount: 0,
-})
+});
 
 const tabs = [
   { key: "library", label: "내 서재" },
   { key: "reviews", label: "나의 리뷰" },
   { key: "likes", label: "좋아요" },
-]
+];
 
-const activeTab = ref("library")
-const viewMode = ref("library")
-const selectedBook = ref(null)
-const bookReviews = ref([])
+const activeTab = ref("library");
+const viewMode = ref("library");
+const selectedBook = ref(null);
+const bookReviews = ref([]);
 
-const myLibraryRaw = ref([])
-const library = ref([])
-const reviews = ref([])
+const myLibraryRaw = ref([]);
+const library = ref([]);
+const reviews = ref([]);
 
-const isLoading = ref(false)
+const isLoading = ref(false);
 
 const user = ref({
   user_id: "",
   nickname: "",
   bio: "",
   profile_image_url: "",
-})
+});
 
 const formatDateLabel = (iso) => {
-  if (!iso) return ""
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ""
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
   return d.toLocaleDateString("ko-KR", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  })
-}
+  });
+};
 
 const getCoverImage = (item) => {
-  return `https://image.yes24.com/goods/${item.contentId}/L`
-}
+  return `https://image.yes24.com/goods/${item.contentId}/L`;
+};
 
 /** ✅ ReviewCard가 기대하는 shape로 통일 */
 const toReviewCardShape = (item) => ({
@@ -397,39 +380,42 @@ const toReviewCardShape = (item) => ({
   spoilerUntil: item.spoilerUntil,
 
   tags: item.tags?.map((t) => t.tagName) ?? [],
-  contentTags: item.contentTags?.map(t => t.tagName) ?? [],
-})
+  contentTags: item.contentTags?.map((t) => t.tagName) ?? [],
+  imageUrls: Array.isArray(item.imageUrls) ? item.imageUrls : [],
+});
 
-console.log(toReviewCardShape)
+console.log(toReviewCardShape);
 
 watch(
   () => store.userId,
   async (newUserId) => {
-    if (!newUserId) return
+    if (!newUserId) return;
 
     try {
-      isLoading.value = true
+      isLoading.value = true;
 
       
       const [userRes, followRes] = await Promise.all([
         getUserInfo(newUserId),
         getFollowCount(newUserId),
-      ])
-      user.value = userRes.data
-      followCount.value = followRes.data
+      ]);
+      user.value = userRes.data;
+      followCount.value = followRes.data;
 
       
       const res = await getMyLibrary()
       const raw = res.data ?? res
       myLibraryRaw.value = raw
 
-      stats.value.reviewCount = raw.length
+
+      stats.value.reviewCount = raw.length;
 
       
       const bookMap = {}
 
+
       raw.forEach((item) => {
-        const cid = item.contentId
+        const cid = item.contentId;
 
         if (!bookMap[cid]) {
           bookMap[cid] = {
@@ -438,8 +424,9 @@ watch(
             author: item.contentAuthor,
             coverImage: getCoverImage(item),
             reviews: [],
-          }
+          };
         }
+
 
         bookMap[cid].reviews.push(toReviewCardShape(item))
       }) 
@@ -450,40 +437,42 @@ watch(
 
       reviews.value = raw.map(toReviewCardShape)
 
+
+      reviews.value = raw.map(toReviewCardShape);
     } catch (e) {
-      console.error("마이페이지 로딩 실패:", e)
+      console.error("마이페이지 로딩 실패:", e);
     } finally {
-      isLoading.value = false
+      isLoading.value = false;
     }
   },
   { immediate: true }
-)
+);
 
 const handleTabClick = (key) => {
-  activeTab.value = key
+  activeTab.value = key;
   if (key === "library") {
-    viewMode.value = "library"
+    viewMode.value = "library";
 
-    selectedBook.value = null
-    bookReviews.value = []
+    selectedBook.value = null;
+    bookReviews.value = [];
   }
-}
+};
 
 const goToMyReviews = (book) => {
-  selectedBook.value = book
-  viewMode.value = "bookReviews"
-  bookReviews.value = book.reviews
-}
+  selectedBook.value = book;
+  viewMode.value = "bookReviews";
+  bookReviews.value = book.reviews;
+};
 
 const backToLibrary = () => {
-  viewMode.value = "library"
-  selectedBook.value = null
-  bookReviews.value = []
-}
+  viewMode.value = "library";
+  selectedBook.value = null;
+  bookReviews.value = [];
+};
 
 const selectedBookTags = computed(() => {
-  if (!selectedBook.value) return ["기록", "독서", "내서재"]
-  const names = selectedBook.value.reviews.flatMap((r) => r.contentTags || [])
-  return [...new Set(names)]
-})
+  if (!selectedBook.value) return ["기록", "독서", "내서재"];
+  const names = selectedBook.value.reviews.flatMap((r) => r.contentTags || []);
+  return [...new Set(names)];
+});
 </script>
