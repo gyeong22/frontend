@@ -51,7 +51,7 @@
           <div class="ml-auto text-xs text-gray-400">
             <span>{{ formatDate(review.createdAt) }}</span>
             <span class="text-gray-300"> · </span>
-            <span>조회 {{ review.viewCount ?? 0 }}</span>
+            <!-- <span>조회 {{ review.viewCount ?? 0 }}</span> -->
           </div>
         </div>
 
