@@ -25,19 +25,20 @@
 
     <!-- 기간 필터 -->
     <div class="mb-6 flex gap-2 text-xs">
-      <button
-        v-for="p in periodTabs"
-        :key="p.key"
-        @click="activePeriod = p.key"
-        class="rounded-full px-3 py-1 border transition"
-        :class="
-          activePeriod === p.key
-            ? 'border-[#B3B1AB] bg-white text-[#2E2A24]'
-            : 'border-[#DDD9CF] bg-[#F8F7F3] text-[#7A766E]'
-        "
-      >
-        {{ p.label }}
-      </button>
+     <button
+  v-for="p in periodTabs"
+  :key="p.key"
+  @click="activePeriod = p.key"
+  class="rounded-full px-3 py-1 border transition"
+  :class="
+    activePeriod === p.key
+      ? 'border-[#B3B1AB] bg-[#EAE9E3] text-[#2E2A24] font-medium'
+      : 'border-[#DDD9CF] bg-[#F8F7F3] text-[#7A766E] hover:bg-[#EEECE6]'
+  "
+>
+  {{ p.label }}
+</button>
+
     </div>
 
     <!-- 로딩 상태 (간단) -->

@@ -68,7 +68,7 @@ const menuItems = [
   { key: 'block', label: '차단한 계정 관리', icon: ShieldBan },
   { key: 'security', label: '비밀번호 및 보안', icon: Lock },
   { key: 'permissions', label: '내 정보 및 권한', icon: ShieldCheck },
-  { key: 'billing', label: '결제 및 구독 관리', icon: CreditCard },
+  
 ]
 
 const selectMenu = (key) => {

@@ -61,3 +61,7 @@ export const getRanking = () => api.get('/ranking/reviews')
 export const getMyLibrary = () => api.get('/me/library')
 
 export const getMyLikedReviews = () => api.get('/likes/me')
+
+
+export const getMyEmail = () => api.get('/users/me/email')
+export const updateMyEmail = (data) => api.patch('/users/me/email', data)
